@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>E.E.T N°3117-Materias</title>
+  <link rel="stylesheet" href="estilos/estilo-index.css">
+</head>
+<body>
+  <div class="background-image"></div>
+  <div class="animated-circuit"></div>
+
+  <div class="tech-icons">
+    <span style="left: 5%; top: 80%; background-image: url('https://cdn-icons-png.flaticon.com/512/3523/3523885.png'); animation-delay: 0s;"></span>
+    <span style="left: 20%; top: 90%; background-image: url('https://cdn-icons-png.flaticon.com/512/8839/8839416.png'); animation-delay: 5s;"></span>
+    <span style="left: 40%; top: 85%; background-image: url('https://cdn-icons-png.flaticon.com/512/2950/2950734.png'); animation-delay: 10s;"></span>
+    <span style="left: 60%; top: 95%; background-image: url('https://cdn-icons-png.flaticon.com/512/1147/1147931.png'); animation-delay: 15s;"></span>
+    <span style="left: 80%; top: 88%; background-image: url('https://cdn-icons-png.flaticon.com/512/3415/3415826.png'); animation-delay: 20s;"></span>
+  </div>
+
+  <h1>->Colegio de Educacion Tecnica N°3117<-</h1>
+  <h2>¡Programas de Materias!</h2>
+
+  <div class="image-container">
+    <img id="escudo" src="escudo_1.PNG" alt="Escudo sin fondo">
+  </div>
+
+  <div class="mapa-container">
+    <div class="mapa-marco">
+      <iframe
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1247.1669655204166!2d-65.42244719519931!3d-24.829481923128483!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x941bc323de074f7f%3A0x97939fde8ba4cb04!2sE.E.T.%203117%20Maestro%20Daniel%20Oscar%20Reyes!5e0!3m2!1ses-419!2sar!4v1743632721497!5m2!1ses-419!2sar"
+        width="300"
+        height="125"
+        style="border:0; border-radius: 12px;"
+        allowfullscreen=""
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade">
+      </iframe>
+    </div>
+  </div>
+
+  <div class="message">
+    <p>Selecciona el turno: </p>
+    <a href="materias.TM.Actualizado.html" target="_self"><button>Turno Mañana</button></a>
+    <a href="materias.TT.html" target="_self"><button>Turno Tarde</button></a>
+  </div>
+
+  <canvas id="lineasCanvas" style="position:fixed; top:0; left:0; z-index:-2; pointer-events:none;"></canvas>
+
+  <script>
+    const canvas = document.getElementById('lineasCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    let hoveredIndex = null;
+    const spans = document.querySelectorAll('.tech-icons span');
+    const escudo = document.getElementById('escudo');
+
+    spans.forEach((el, index) => {
+      el.addEventListener('mouseenter', () => { hoveredIndex = index; });
+      el.addEventListener('mouseleave', () => { hoveredIndex = null; });
+    });
+
+    function getPositions() {
+      const iconPositions = Array.from(spans).map(el => {
+        const rect = el.getBoundingClientRect();
+        return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+      });
+
+      const escudoRect = escudo.getBoundingClientRect();
+      const centroEscudo = {
+        x: escudoRect.left + escudoRect.width / 2,
+        y: escudoRect.top + escudoRect.height / 2
+      };
+
+      return { iconPositions, centroEscudo };
+    }
+
+    function drawConnections() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const { iconPositions, centroEscudo } = getPositions();
+
+      for (let i = 0; i < iconPositions.length; i++) {
+        for (let j = i + 1; j < iconPositions.length; j++) {
+          const dx = iconPositions[i].x - iconPositions[j].x;
+          const dy = iconPositions[i].y - iconPositions[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 250) {
+            ctx.beginPath();
+            ctx.moveTo(iconPositions[i].x, iconPositions[i].y);
+            ctx.lineTo(iconPositions[j].x, iconPositions[j].y);
+
+            ctx.strokeStyle = (hoveredIndex === i || hoveredIndex === j) ? '#00ffff' : '#00ffff33';
+            ctx.lineWidth = (hoveredIndex === i || hoveredIndex === j) ? 2.5 : 1.2;
+            ctx.shadowBlur = (hoveredIndex === i || hoveredIndex === j) ? 8 : 0;
+            ctx.shadowColor = '#00ffff';
+            ctx.stroke();
+          }
+        }
+
+        ctx.beginPath();
+        ctx.moveTo(iconPositions[i].x, iconPositions[i].y);
+        ctx.lineTo(centroEscudo.x, centroEscudo.y);
+
+        ctx.strokeStyle = (hoveredIndex === i) ? '#00ffff' : '#00ffff22';
+        ctx.lineWidth = (hoveredIndex === i) ? 2 : 1;
+        ctx.shadowBlur = (hoveredIndex === i) ? 6 : 0;
+        ctx.shadowColor = '#00ffff';
+        ctx.stroke();
+      }
+    }
+
+    setInterval(drawConnections, 120);
+  </script>
+</body>
+</html>
